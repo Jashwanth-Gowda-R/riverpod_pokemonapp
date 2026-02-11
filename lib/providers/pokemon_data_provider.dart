@@ -1,0 +1,31 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pokemon_app/models/pokemon.dart';
+import 'package:pokemon_app/services/http_services.dart';
+
+final pokemonProvider = FutureProvider.family<Pokemon?, String>((
+  ref,
+  url,
+) async {
+  HttpServices http = GetIt.instance.get<HttpServices>();
+
+  Response? response = await http.get(path: url);
+  if (response != null && response.data != null) {
+    return Pokemon.fromJson(response.data);
+  }
+  return null;
+});
+
+final favoriteProvider = StateNotifierProvider<FavoriteProvider, List<String>>(
+  (ref) => FavoriteProvider([]),
+);
+
+class FavoriteProvider extends StateNotifier<List<String>> {
+  FavoriteProvider(super._state) {
+    _setup();
+  }
+
+  Future<void> _setup() async {}
+}

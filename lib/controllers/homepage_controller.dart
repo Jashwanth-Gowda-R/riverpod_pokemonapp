@@ -32,6 +32,23 @@ class HomepageController extends StateNotifier<HomePageData> {
         PokemonListData data = PokemonListData.fromJson(response.data);
         state = state.copyWith(data: data);
       }
-    } else {}
+    } else {
+      if (state.data!.next != null) {
+        Response? response = await _httpServices.get(path: state.data!.next!);
+        debugPrint('${response?.data}');
+
+        if (response != null &&
+            response.data != null &&
+            response.data['results'] != null) {
+          PokemonListData data = PokemonListData.fromJson(response.data);
+          // state = state.copyWith(data: data);
+          state = state.copyWith(
+            data: data.copyWith(
+              results: [...state.data!.results!, ...data.results!],
+            ),
+          );
+        }
+      }
+    }
   }
 }

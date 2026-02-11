@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pokemon_app/controllers/homepage_controller.dart';
 import 'package:pokemon_app/models/page_data.dart';
+import 'package:pokemon_app/widgets/pokemon_list_tile.dart';
 
 final homePageControllerProvider =
     StateNotifierProvider<HomepageController, HomePageData>(
@@ -19,12 +20,32 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   late HomepageController _controller;
   late HomePageData _data;
+  final ScrollController _scrollController = ScrollController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controller = ref.read(homePageController.notifier);
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // if (_scrollController.position.pixels ==
+    //     _scrollController.position.maxScrollExtent) {
+    //   _controller.loadData();
+    // }
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      _controller.loadData();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,23 +99,27 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height * 0.6,
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: _data.data?.results?.length ?? 0,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(
-                                _data.data?.results?[index].name ?? "",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                _data.data?.results?[index].url ?? "",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
+                            // return ListTile(
+                            //   title: Text(
+                            //     _data.data?.results?[index].name ?? "",
+                            //     style: TextStyle(
+                            //       fontSize: 20,
+                            //       fontWeight: FontWeight.bold,
+                            //     ),
+                            //   ),
+                            //   subtitle: Text(
+                            //     _data.data?.results?[index].url ?? "",
+                            //     style: TextStyle(
+                            //       fontSize: 16,
+                            //       fontWeight: FontWeight.normal,
+                            //     ),
+                            //   ),
+                            // );
+                            return PokemonListTile(
+                              pokemonUrl: _data.data?.results?[index].url ?? "",
                             );
                           },
                         ),
