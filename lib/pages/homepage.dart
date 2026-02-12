@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:pokemon_app/controllers/homepage_controller.dart';
 import 'package:pokemon_app/models/page_data.dart';
+import 'package:pokemon_app/providers/pokemon_data_provider.dart';
+import 'package:pokemon_app/widgets/pokemon_card.dart';
 import 'package:pokemon_app/widgets/pokemon_list_tile.dart';
 
 final homePageControllerProvider =
@@ -20,6 +22,7 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   late HomepageController _controller;
   late HomePageData _data;
+  late List<String> _favoriteUrls;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -51,6 +54,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   Widget build(BuildContext context) {
     _controller = ref.watch(homePageControllerProvider.notifier);
     _data = ref.watch(homePageControllerProvider);
+    _favoriteUrls = ref.watch(favoriteProvider);
     return Scaffold(
       appBar: AppBar(title: const Text("Flutter Riverpod - Pokemon App")),
       body: SafeArea(
@@ -76,6 +80,48 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      // grid view of favorite pokemon with horizontal scroll
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (_favoriteUrls.isEmpty)
+                              SizedBox(
+                                child: Text(
+                                  "No favorite pokemon yet!",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            if (_favoriteUrls.isNotEmpty)
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.45,
+                                child: GridView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _favoriteUrls.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisSpacing: 20,
+                                        mainAxisSpacing: 20,
+                                        crossAxisCount: 2,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return PokemonCard(
+                                      pokemonUrl: _favoriteUrls[index],
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],
